@@ -194,6 +194,8 @@ class Pruning:
 
     def prune_modules(self, prune_features: NAMED_FEATURE_IMPORTANCE):
         for m, features in prune_features.items():
+            if not features:
+                continue
             self.prune_fn(m, features)
 
         # Persist features pruned.
