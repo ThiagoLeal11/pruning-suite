@@ -20,7 +20,7 @@ def decision_tree_importance(x_train, y_train, x_test, y_test):
 
 
 def randon_forest_importance(x_train, y_train, x_test, y_test):
-    clf = RandomForestClassifier(n_estimators=50, random_state=0, min_impurity_decrease=0.0001, n_jobs=1)
+    clf = RandomForestClassifier(n_estimators=100, random_state=0, min_impurity_decrease=0.0001, n_jobs=1)
     return classifier_importance(clf, x_train, y_train, x_test, y_test)
 
 
