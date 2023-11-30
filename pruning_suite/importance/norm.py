@@ -23,8 +23,11 @@ class NormBasedImportance(c.GenericImportance):
             return weights.abs().sum(dim=dims)
         elif norm == 'l2':
             return weights.pow(2).sum(dim=dims).sqrt()
-        elif norm == 'linf':
-            return weights.abs().max(dim=dims)
+        elif norm == 'max':
+            w = weights.abs()
+            for _ in dims:
+                w, _ = w.max(dim=-1)
+            return w
         else:
             raise Exception(f'Norm {norm} not found')
 
@@ -32,11 +35,22 @@ class NormBasedImportance(c.GenericImportance):
                       prune_ratio: NAMED_RATIO) -> NAMED_IMPORTANCE:
         modules_feature_importance = {}
         for m in to_prune_modules.keys():
+            already_pruned = c.get_pruned_features(m)
+
             extract_fn = self.extract_weights_fn[c.full_class_name(m)]
             weights = extract_fn(m)
-            modules_feature_importance[m] = {
-                n: self._get_norm(w, self.norm, self.scale)
-                for n, w in weights.items()
-            }
+
+            named_features_ranking = {}
+            for name, w in weights.items():
+                pruned = already_pruned.get(name, None)
+                importance = self._get_norm(
+                    weights=c.select_values(w, pruned),
+                    norm=self.norm,
+                    scale=self.scale
+                )
+                upper_limit = w.max() + 1
+                named_features_ranking[name] = c.fill_gaps(importance, pruned, fill_value=upper_limit)
+
+            modules_feature_importance[m] = named_features_ranking
 
         return modules_feature_importance

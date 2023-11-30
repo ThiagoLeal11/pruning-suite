@@ -102,6 +102,10 @@ def to_low_ratio(ratio: float, threshold: float = 0.0001) -> bool:
     return ratio <= threshold
 
 
+def negate(x: list[bool]) -> list[bool]:
+    return [not i for i in x]
+
+
 def select_features(features: TENSOR, mask_out: Optional[list[bool]]) -> TENSOR:
     if not mask_out:
         return features
@@ -109,7 +113,17 @@ def select_features(features: TENSOR, mask_out: Optional[list[bool]]) -> TENSOR:
     if len(mask_out) != features.shape[1]:
         raise Exception(f'Invalid mask length: {len(mask_out)} != {features.shape[1]}')
 
-    return features[:, mask_out, :]
+    return features[:, negate(mask_out), :]
+
+
+def select_values(features: TENSOR, mask_out: Optional[list[bool]]) -> TENSOR:
+    if not mask_out:
+        return features
+
+    if len(mask_out) != features.shape[0]:
+        raise Exception(f'Invalid mask length: {len(mask_out)} != {features.shape[0]}')
+
+    return features[negate(mask_out), :]
 
 
 def fill_gaps(x: list[float], should_fill: Optional[list[bool]], fill_value: int) -> list[float]:
@@ -117,11 +131,13 @@ def fill_gaps(x: list[float], should_fill: Optional[list[bool]], fill_value: int
         return x
 
     result = []
+    arr_idx = 0
     for s in should_fill:
         if s:
             result.append(fill_value)
         else:
-            result.append(x.pop(0))
+            result.append(x[arr_idx])
+            arr_idx += 1
 
     return result
 
