@@ -76,9 +76,3 @@ def zero_weights(m, x):
                     continue
 
                 layer.weight.data[fi, :] = .0
-
-
-EXTRACT_FEATURES = {
-    'timm.models.maxxvit.Attention2d': extract_features_attention,
-    'timm.models.maxxvit.MbConvBlock': extract_features_mb_conv_block,
-}
