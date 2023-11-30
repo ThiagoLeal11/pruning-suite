@@ -46,6 +46,37 @@ def extract_features_mb_conv_block(m, x, *args, **kwargs):
     return result
 
 
+def extract_attention_weights(m):
+    if not isinstance(m, timm.models.maxxvit.Attention2d):
+        raise Exception(f'Invalid module: {m} for attention weights extraction')
+
+    dim_head = m.dim_head
+    weights = {'qkv': []}
+    for hi in range(m.num_heads):
+        head_size = dim_head * 3
+        s = hi * head_size
+        e = s + head_size
+
+        head_weights = m.qkv.weight.data[s:e, :]
+        weights['qkv'].append(head_weights)
+
+    return {
+        k: torch.stack(v)
+        for k, v in weights.items()
+    }
+
+
+def extract_conv_weights(m):
+    if not isinstance(m, timm.models.maxxvit.MbConvBlock):
+        raise Exception(f'Invalid module: {m} for attention weights extraction')
+
+    weights = {
+        'conv2_kxk': m.conv2_kxk.weight.data,
+    }
+
+    return weights
+
+
 def zero_weights(m, x):
     if isinstance(m, timm.models.maxxvit.Attention2d):
         x = x['qkv']

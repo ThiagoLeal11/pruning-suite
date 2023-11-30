@@ -5,8 +5,8 @@ import torch
 
 from pruning_suite.pruning import Pruning
 import pruning_suite.models.coatnet as coatnet
-import pruning_suite.importance.vanilla as sklearn
 import pruning_suite.importance.classifiers as classifiers
+import pruning_suite.importance.norm as norm
 import pruning_suite.evaluate as evaluate
 from pruning_suite.common import PruningDataset
 
@@ -14,6 +14,11 @@ from pruning_suite.common import PruningDataset
 EXTRACT_FEATURES = {
     'timm.models.maxxvit.Attention2d': coatnet.extract_features_attention,
     'timm.models.maxxvit.MbConvBlock': coatnet.extract_features_mb_conv_block,
+}
+
+EXTRACT_WEIGHTS = {
+    'timm.models.maxxvit.Attention2d': coatnet.extract_attention_weights,
+    'timm.models.maxxvit.MbConvBlock': coatnet.extract_conv_weights,
 }
 
 
@@ -82,6 +87,11 @@ def main():
     importance_model = classifiers.ClassifierBasedImportance(
         estimator='decision_tree', n_jobs=8
     )
+    # importance_model = norm.NormBasedImportance(
+    #     extract_weights_fn=EXTRACT_WEIGHTS,
+    #     norm='l1',
+    #     scale=True,
+    # )
     is_global = False
     interactive_steps = 1
 
