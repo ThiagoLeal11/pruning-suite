@@ -142,6 +142,16 @@ def fill_gaps(x: list[float], should_fill: Optional[list[bool]], fill_value: int
     return result
 
 
+def replace_when(x: list[float], mask: list[bool], replace_value: float) -> list[float]:
+    if not mask:
+        return x
+
+    return [
+        replace_value if m else i
+        for i, m in zip(x, mask)
+    ]
+
+
 def _int_to_bool(x: list[int]) -> list[bool]:
     return [True if i > 0 else False for i in x]
 
