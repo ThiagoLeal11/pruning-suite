@@ -15,7 +15,7 @@ def extract_features_attention(m, x, *args, **kwargs):
             v[:, head_idx, :, :].transpose(-1, -2).contiguous(),
             attn_mask=attn_bias[:, head_idx],
             dropout_p=m.attn_drop.p if m.training else 0.,
-        ).transpose(-1, -2).reshape(B, -1, H, W).reshape(B, 1, -1)
+        ).transpose(-1, -2).reshape(B, -1, H, W).reshape(B, 1, H*8, W*4)
         outputs.append(x)
     return {
         'qkv': torch.cat(outputs, dim=1)  # (64, 192, 14, 14)
