@@ -53,11 +53,11 @@ class ClassifierBasedImportance(c.GenericImportance):
 
             named_features_ranking = {}
             for name in x_train.keys():
-                ratio = c.get_ratio(prune_ratio, [c.full_class_name(m), name])
-                if c.to_low_ratio(ratio):
+                # Optimization: skip the layers with no pruning ratio
+                if not self.is_worth_prune(m, prune_ratio, name):
                     continue
 
-                # skip the already pruned layers
+                # Optimization: skip the already pruned layers
                 pruned = already_pruned.get(name, None)
                 rank = self.estimator(
                     x_train=c.select_features(x_train[name], pruned),
