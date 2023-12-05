@@ -75,16 +75,17 @@ class Pruning:
     # TODO: test
     @staticmethod
     def _get_prune_features(is_global: bool, ratio: float | c.NAMED_RATIO, named_features_importance: c.NAMED_IMPORTANCE) -> c.NAMED_IMPORTANCE:
-        print('>> Pruning features')
+        # print('>> Pruning features')
         prune_features = {}
+        # TODO: Global pruning separated by module.
         if not is_global:
             for m, named_rank in named_features_importance.items():
                 named_features = {}
-                print(f' - Pruning {full_class_name(m)} module')
+                # print(f' - Pruning {full_class_name(m)} module')
                 for name, rank in named_rank.items():
                     r = get_ratio(ratio, [full_class_name(m), name])
                     named_features[name] = binarize(r, rank)
-                    print(f'   - Pruning {name} features {named_features[name]}')
+                    # print(f'   - Pruning {name} features {named_features[name]}')
                 prune_features[m] = named_features
             return prune_features
 
@@ -100,10 +101,10 @@ class Pruning:
         last_idx = 0
         for m, named_rank in named_features_importance.items():
             named_features = {}
-            print(f' - Pruning {full_class_name(m)} module')
+            # print(f' - Pruning {full_class_name(m)} module')
             for name, rank in named_rank.items():
                 named_features[name] = features[last_idx:last_idx+len(rank)]
-                print(f'   - Pruning {name} features {named_features[name]}')
+                # print(f'   - Pruning {name} features {named_features[name]}')
                 last_idx += len(rank)
             prune_features[m] = named_features
 
@@ -145,6 +146,7 @@ class Pruning:
                 print(f'>> Pruning step ({step+1}/{self.interactive_steps})')
                 self.prune_step(prune_ratio)
                 step += 1
+                yield step, prune_ratio
 
         # Clean the model
         self.unwrap_forward()
