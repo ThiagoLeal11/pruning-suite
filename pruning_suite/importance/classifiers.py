@@ -61,9 +61,9 @@ class ClassifierBasedImportance(c.GenericImportance):
                 pruned = already_pruned.get(name, None)
                 rank = self.estimator(
                     x_train=c.select_features(x_train[name], pruned),
-                    y_train=c.select_features(train.y, pruned),
+                    y_train=train.y,
                     x_test=c.select_features(x_test[name], pruned),
-                    y_test=c.select_features(test.y, pruned),
+                    y_test=test.y,
                 )
                 rank = c.fill_gaps(rank, pruned, 1)
                 named_features_ranking[name] = rank
