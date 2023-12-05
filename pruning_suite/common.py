@@ -39,6 +39,11 @@ class GenericImportance(ABC):
                       prune_ratio: NAMED_RATIO) -> NAMED_IMPORTANCE:
         raise NotImplementedError
 
+    @staticmethod
+    def is_worth_prune(module: MODULE, prune_ratio: NAMED_RATIO, name: str, threshold: float = 0.0001) -> bool:
+        ratio = get_ratio(prune_ratio, [full_class_name(module), name])
+        return ratio > threshold
+
 
 def full_class_name(c) -> str:
     return f'{c.__class__.__module__}.{c.__class__.__name__}'
@@ -98,10 +103,6 @@ def hydrate_named_features(x: IO) -> NAMED_FEATURES:
     return torch.load(x.name)
 
 
-def to_low_ratio(ratio: float, threshold: float = 0.0001) -> bool:
-    return ratio <= threshold
-
-
 def negate(x: list[bool]) -> list[bool]:
     return [not i for i in x]
 
@@ -126,9 +127,9 @@ def select_values(features: TENSOR, mask_out: Optional[list[bool]]) -> TENSOR:
     return features[negate(mask_out), :]
 
 
-def fill_gaps(x: list[float], should_fill: Optional[list[bool]], fill_value: int) -> list[float]:
+def fill_gaps(x: list[float], should_fill: Optional[list[bool]], fill_value: float) -> list[float]:
     if not should_fill:
-        return x
+        return list(x)
 
     result = []
     arr_idx = 0
