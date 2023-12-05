@@ -48,7 +48,7 @@ class NormBasedImportance(c.GenericImportance):
                     norm=self.norm,
                     scale=self.scale
                 )
-                upper_limit = w.max() + 1
+                upper_limit = 52e32
                 named_features_ranking[name] = c.fill_gaps(importance, pruned, fill_value=upper_limit)
 
             modules_feature_importance[m] = named_features_ranking
